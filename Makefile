@@ -5,20 +5,24 @@ names := $(files:.lisp=)
 
 LISP ?= sbcl
 MAN_SECTION ?= man1
+QUIET_REDIR :=
+ifdef QUIET
+QUIET_REDIR := 2>/dev/null 1>/dev/null
+endif
 
 all: $(names)
 
 $(names): %: bin/% man/$(MAN_SECTION)/%.1
 
-bin/%: %.lisp build-binary.sh Makefile
+bin/%: %.lisp scripts/build-binary.sh Makefile
 	$(info ===> Making executable for '$<')
-	./build-binary.sh $<
+	./scripts/build-binary.sh $< $@ $(QUIET_REDIR)
 	mkdir -p bin
 	mv $(@F) bin/
 
-man/man1/%.1: %.lisp build-manual.sh Makefile
+man/man1/%.1: %.lisp scripts/build-manual.sh Makefile
 	$(info ===> Making man page for '$<')
-	./build-manual.sh $<
+	./scripts/build-manual.sh $< $@ $(QUIET_REDIR)
 	mkdir -p man/$(MAN_SECTION)
 	mv $(@F) man/$(MAN_SECTION)/
 
