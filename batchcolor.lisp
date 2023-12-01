@@ -28,9 +28,9 @@
 (define-condition malformed-explicit (user-error)
   ((spec :initarg :spec))
   (:report
-    (lambda (c s)
-      (format s "Invalid explicit spec ~S, must be of the form \"R,G,B:string\" with colors being 0-5."
-              (slot-value c 'spec)))))
+   (lambda (c s)
+     (format s "Invalid explicit spec ~S, must be of the form \"R,G,B:string\" with colors being 0-5."
+             (slot-value c 'spec)))))
 
 ;;;; Functionality ------------------------------------------------------------
 (defun rgb-code (r g b)
@@ -111,63 +111,63 @@
         (paths (or paths '("-"))))
     (dolist (path paths)
       (if (string= "-" path)
-        (run% scanner *standard-input*)
-        (with-open-file (stream path :direction :input)
-          (run% scanner stream))))))
+          (run% scanner *standard-input*)
+          (with-open-file (stream path :direction :input)
+            (run% scanner stream))))))
 
 (defparameter *option-help*
   (adopt:make-option 'help
-    :help "Display help and exit."
-    :long "help"
-    :short #\h
-    :reduce (constantly t)))
+		     :help "Display help and exit."
+		     :long "help"
+		     :short #\h
+		     :reduce (constantly t)))
 
 (adopt:defparameters (*option-debug* *option-no-debug*)
-  (adopt:make-boolean-options 'debug
-    :long "debug"
-    :short #\d
-    :help "Enable the Lisp debugger."
-    :help-no "Disable the Lisp debugger (the default)."))
+    (adopt:make-boolean-options 'debug
+				:long "debug"
+				:short #\d
+				:help "Enable the Lisp debugger."
+				:help-no "Disable the Lisp debugger (the default)."))
 
 (adopt:defparameters (*option-randomize* *option-no-randomize*)
-  (adopt:make-boolean-options 'randomize
-    :help "Randomize the choice of color each run."
-    :help-no "Do not randomize the choice of color each run (the default)."
-    :long "randomize"
-    :short #\r))
+    (adopt:make-boolean-options 'randomize
+				:help "Randomize the choice of color each run."
+				:help-no "Do not randomize the choice of color each run (the default)."
+				:long "randomize"
+				:short #\r))
 
 (adopt:defparameters (*option-dark* *option-light*)
-  (adopt:make-boolean-options 'dark
-    :name-no 'light
-    :long "dark"
-    :long-no "light"
-    :help "Optimize for dark terminals (the default)."
-    :help-no "Optimize for light terminals."
-    :initial-value t))
+    (adopt:make-boolean-options 'dark
+				:name-no 'light
+				:long "dark"
+				:long-no "light"
+				:help "Optimize for dark terminals (the default)."
+				:help-no "Optimize for light terminals."
+				:initial-value t))
 
 (defun parse-explicit (spec)
   (ppcre:register-groups-bind
-      ((#'parse-integer r g b) string)
-      ("^([0-5]),([0-5]),([0-5]):(.+)$" spec)
-    (return-from parse-explicit (cons string (rgb-code r g b))))
+   ((#'parse-integer r g b) string)
+   ("^([0-5]),([0-5]),([0-5]):(.+)$" spec)
+   (return-from parse-explicit (cons string (rgb-code r g b))))
   (error 'malformed-explicit :spec spec))
 
 (defparameter *option-explicit*
   (adopt:make-option 'explicit
-    :parameter "R,G,B:STRING"
-    :help "Highlight STRING in an explicit color.  May be given multiple times."
-    :manual (format nil "~
+		     :parameter "R,G,B:STRING"
+		     :help "Highlight STRING in an explicit color.  May be given multiple times."
+		     :manual (format nil "~
       Highlight STRING in an explicit color instead of randomly choosing one.  ~
       R, G, and B must be 0-5.  STRING is treated as literal string, not a regex.  ~
       Note that this doesn't automatically add STRING to the overall regex, you ~
       must do that yourself!  This is a known bug that may be fixed in the future.")
-    :long "explicit"
-    :short #\e
-    :key #'parse-explicit
-    :reduce #'adopt:collect))
+		     :long "explicit"
+		     :short #\e
+		     :key #'parse-explicit
+		     :reduce #'adopt:collect))
 
 (adopt:define-string *help-text*
-  "batchcolor takes a regular expression and matches it against standard ~
+    "batchcolor takes a regular expression and matches it against standard ~
    input one line at a time.  Each unique match is highlighted in its own color.~@
    ~@
    If the regular expression contains any capturing groups, only those parts of ~
@@ -175,7 +175,7 @@
    highlighted.  Overlapping capturing groups are not supported.")
 
 (adopt:define-string *extra-manual-text*
-  "If no FILEs are given, standard input will be used.  A file of - stands for ~
+    "If no FILEs are given, standard input will be used.  A file of - stands for ~
    standard input as well.~@
    ~@
    Overlapping capturing groups are not supported because it's not clear what ~
@@ -198,23 +198,23 @@
 
 (defparameter *ui*
   (adopt:make-interface
-    :name "batchcolor"
-    :usage "[OPTIONS] REGEX [FILE...]"
-    :summary "colorize regex matches in batches"
-    :help *help-text*
-    :manual (format nil "~A~2%~A" *help-text* *extra-manual-text*)
-    :examples *examples*
-    :contents (list
-                *option-help*
-                *option-debug*
-                *option-no-debug*
-                (adopt:make-group 'color-options
-                                  :title "Color Options"
-                                  :options (list *option-randomize*
-                                                 *option-no-randomize*
-                                                 *option-dark*
-                                                 *option-light*
-                                                 *option-explicit*)))))
+   :name "batchcolor"
+   :usage "[OPTIONS] REGEX [FILE...]"
+   :summary "colorize regex matches in batches"
+   :help *help-text*
+   :manual (format nil "~A~2%~A" *help-text* *extra-manual-text*)
+   :examples *examples*
+   :contents (list
+              *option-help*
+              *option-debug*
+              *option-no-debug*
+              (adopt:make-group 'color-options
+                                :title "Color Options"
+                                :options (list *option-randomize*
+                                               *option-no-randomize*
+                                               *option-dark*
+                                               *option-light*
+                                               *option-explicit*)))))
 
 (defmacro exit-on-ctrl-c (&body body)
   `(handler-case (with-user-abort:with-user-abort (progn ,@body))
@@ -224,22 +224,22 @@
   (loop :for (string . rgb) :in (gethash 'explicit options)
         :do (setf (gethash string *explicits*) rgb))
   (setf *start* (if (gethash 'randomize options)
-                  (random 256 (make-random-state t))
-                  0)
+                    (random 256 (make-random-state t))
+                    0)
         *dark* (gethash 'dark options)))
 
 (defun toplevel ()
   (sb-ext:disable-debugger)
   (exit-on-ctrl-c
-    (multiple-value-bind (arguments options) (adopt:parse-options-or-exit *ui*)
-      (when (gethash 'debug options)
-        (sb-ext:enable-debugger))
-      (handler-case
-          (cond
-            ((gethash 'help options) (adopt:print-help-and-exit *ui*))
-            ((null arguments) (error 'missing-regex))
-            (t (destructuring-bind (pattern . files) arguments
-                 (configure options)
-                 (run pattern files))))
-        (user-error (e) (adopt:print-error-and-exit e))))))
+   (multiple-value-bind (arguments options) (adopt:parse-options-or-exit *ui*)
+     (when (gethash 'debug options)
+       (sb-ext:enable-debugger))
+     (handler-case
+         (cond
+           ((gethash 'help options) (adopt:print-help-and-exit *ui*))
+           ((null arguments) (error 'missing-regex))
+           (t (destructuring-bind (pattern . files) arguments
+                (configure options)
+                (run pattern files))))
+       (user-error (e) (adopt:print-error-and-exit e))))))
 
