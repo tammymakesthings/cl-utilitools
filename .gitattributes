@@ -1,0 +1,2 @@
+*.ps1		text working-tree-encoding=UTF-8 eol=CRLF
+*.bat		text working-tree-encoding=UTF-8 eol=CRLF
