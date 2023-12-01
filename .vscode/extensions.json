@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "EditorConfig.EditorConfig",
+        "rheller.alive",
+        "jeff-hykin.better-lisp-syntax",
+        "rajivshah01234.make-runner",
+        "ms-vscode.makefile-tools"
+    ]
+}
